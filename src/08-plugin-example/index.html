@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<div id="box">Hello</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script>
+
+$.fn.greenText = function(){
+
+    this.css("color","green");
+
+    return this;
+
+};
+
+
+$("#box").greenText();
+
+</script>
+
+</body>
+</html>
