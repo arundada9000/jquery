@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<img id="image" src="one.jpg">
+
+<button data-id="100">Delete</button>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+
+$("#image").attr("src","two.jpg");
+
+$("button").click(function(){
+
+console.log(
+    $(this).data("id")
+);
+
+});
+
+</script>
+</body>
+</html>
