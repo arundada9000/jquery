@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script>
+
+$.ajax("https://jsonplaceholder.typicode.com/posts/1")
+
+.done(function(data){
+    console.log(data);
+})
+
+.fail(function(){
+    console.log("failed");
+});
+
+</script>
+
+</body>
+</html>
