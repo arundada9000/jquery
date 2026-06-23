@@ -1,120 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>jQuery Basics - Chai Shop</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 700px; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 6px; }
+        .highlight { background: #fff3cd; }
+        .chai-type { font-weight: bold; color: #6b4226; }
+    </style>
 </head>
-
 <body>
-    <h1>Hello</h1>
-    <h1>Hi</h1>
-    <h1>Yo</h1>
-    <button id="btn">Toggle paragraph</button>
-    <div id="wiki">
-        The Battle of Trapani took place on 23 June 1266 off Trapani, Sicily, between the fleets of the Republic of
-        Genoa and the Republic of Venice, as part of the War of Saint Sabas (1256–1270). The two fleets met near Trapani
-        in Sicily on 22 June. After learning of the Venetian fleet's smaller size, the Genoese war council resolved to
-        attack, but during the night Genoese commander Lanfranco Borbonino reversed the decision and instead ordered his
-        ships to take up a defensive position, bound together with chains, near the shore.
+
+    <h1>Chai Shop</h1>
+    <p class="tagline">Fresh brewed daily</p>
+
+    <div id="menu">
+        <div class="chai-item" data-price="250">Masala Chai</div>
+        <div class="chai-item" data-price="200">Green Tea</div>
+        <div class="chai-item" data-price="300">Turmeric Latte</div>
     </div>
-    <script src="https://code.jquery.com/jquery-4.0.0.min.js"
-        integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
+
+    <button id="btn-order">Place Order</button>
+    <button id="btn-highlight">Highlight First</button>
+    <button id="btn-reset">Reset</button>
+
+    <div id="output" class="card">Click a button to see result here.</div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
+
         $(document).ready(function () {
-            console.log($);
-            $('h1').click(function (e) {
-                console.log(e.target.textContent + ' You clicked');
-                // $(this).hide();
-            })
-            // $('h1').dblclick(function (e) {
-            //     console.log(e.target.textContent + ' You double clicked');
 
-            // })
-            // $('h1').hover(function (e) {
-            //     console.log(e.target.textContent + ' You double clicked');
+            // --- Basic Selectors ---
+            $("h1").css("color", "#6b4226");
+            $(".tagline").css("font-style", "italic");
+            $("#menu").css("border", "2px solid #ccc");
 
-            // })
-            // $('h1').mouseenter(function (e) {
-            //     console.log(e.target.textContent + ' You double clicked');
+            // --- Click Event ---
+            $("#btn-order").click(function () {
+                var names = [];
+                $(".chai-item").each(function () {
+                    names.push($(this).text());
+                });
+                $("#output").text("You ordered: " + names.join(", "));
+            });
 
-            // })
+            // --- CSS Class Manipulation ---
+            $("#btn-highlight").click(function () {
+                $(".chai-item:first").addClass("highlight");
+            });
 
-            // multiple events in any element
-            $('h1').on(
-                {
-                    click: function () {
-                        console.log("clicked");
+            // --- text() and html() ---
+            $("#btn-reset").click(function () {
+                $(".chai-item").removeClass("highlight");
+                $("#output").html("Reset complete. <em>Ready for next order.</em>");
+            });
 
-                    }, mouseleave: function () {
-                        console.log("left");
-                    }
-                }
-            )
+            // --- val() on inputs (if any exist dynamically) ---
 
-            $('#btn').click(() => {
-                // $('#wiki').toggle(1000);
-                // $('#wiki').fadeIn(1000);
-                $('#wiki').fadeOut(1000);
-            })
+            // --- attr() reading ---
+            $("#btn-order").on("click", function () {
+                var firstPrice = $(".chai-item:first").attr("data-price");
+                console.log("First item price attr:", firstPrice);
+            });
 
-            $('#wiki').slideUp(1000, () => { console.log("slide up") });
-            $('#wiki').slideDown(1000);
-            // $('#wiki').slideToggle(1000);
+            // --- data() reading (caches parsed value) ---
+            $(".chai-item").click(function () {
+                var price = $(this).data("price");
+                var name = $(this).text();
+                $("#output").text(name + " costs Rs " + price);
+            });
 
+            // --- css() getter and setter ---
+            var bg = $(".card").css("background-color");
+            console.log("Card background:", bg);
 
-            // $('#wiki').animate({ opacity: 0.3, height: '150px', width: '350px' }, "slow");
-            // $('#wiki').animate({ opacity: 0.3, height: '150px', width: '350px' }, 1000);
-            $('#wiki').animate({ opacity: 0.3 }, 4000);
-            $('#wiki').animate({ opacity: 0.9 }, 1000);
-            $('#wiki').animate({ width: '35px' }, 12000);
-            // $('#wiki').stop();
+            // --- hover (mouseenter + mouseleave) ---
+            $(".chai-item").hover(
+                function () { $(this).css("background", "#f5f0e8"); },
+                function () { $(this).css("background", ""); }
+            );
 
-            // console.log($('#wiki').text())
-            // console.log($('#wiki').text("Arun"))
-
-            // $("body").html("Arun")
-
-            // $('#wiki').hide(2000, function () {
-            //     console.log("hidden")
-            // });
-            // $('#wiki').show(2000, function () {
-            //     console.log("Shown")
-            // });
-            // $('h1:first').click();
-
-            // events in jquery
-            // mouse events: click, dblclick, mouseenter,mouseleave, 
-            // keyboardevent = keypress keydown mediakeystatusmap
-            // for events = submit change  
-
-            // $('#ta').val('setting it to arun');
-            // $('#ta').html('setting it to arun');
-            // $('#ta').html('setting it to arun3');
-            // $('#inp').html('setting it to arun3');
-            // $('#inp').val('setting it to arun3');
-            // $('#inp').empty()
-            // $('#wiki').empty()
-            // $('#wiki').text('you are good')
-            // $('#wiki').remove()
-
-            //     $('#wiki').addClass('myclass')
-            // $('#wiki').addClass('myclass2')
-            // $('#wiki').removeClass('myclass2')
-            // $('#wiki').css('background-color', 'red')
-            // $('#wiki').css('background-color')
-
-            // AJAX Using jQuery
-            // $.get('https://code.jquery.com/jquery-3.3.1.js', function (data, status) { alert(data); })
-
-            // $.get('https://code.jquery.com/jquery-3.3.1.js', function (data, status) { alert(status); })
-
-            // $.post('https://code.jquery.com/jquery-3.3.1.js',
-            //     { name: 'arun', channel: 'code with arun' },
-            //     function (data, status) { alert(status) });
         });
+
     </script>
 </body>
-
 </html>

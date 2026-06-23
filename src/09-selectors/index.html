@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>jQuery Selectors - Chai Menu</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 700px; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 6px; }
+        .highlight { background: #fff3cd; }
+        .selected { outline: 3px solid #6b4226; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 0.4rem; margin: 0.2rem 0; background: #f9f9f9; }
+        button { margin: 0.2rem; }
+        pre { background: #f5f5f5; padding: 0.5rem; overflow-x: auto; }
+    </style>
+</head>
+<body>
+
+    <h2>Chai Menu - Selector Playground</h2>
+
+    <ul id="menu">
+        <li class="hot" data-price="250">Masala Chai</li>
+        <li class="hot" data-price="180">Ginger Tea</li>
+        <li class="special" data-price="300">Turmeric Latte</li>
+        <li class="iced" data-price="200">Iced Chai</li>
+        <li class="iced special" data-price="220">Iced Matcha</li>
+        <li class="hot" data-price="150">Black Tea</li>
+    </ul>
+
+    <div class="card">
+        <p>Element: <span class="highlight">span.highlight</span></p>
+        <input type="text" value="chai search" id="search-input">
+        <input type="checkbox" checked id="cb1"> <label for="cb1">Organic</label>
+        <input type="checkbox" id="cb2"> <label for="cb2">Spicy</label>
+        <input type="radio" name="size" value="small" checked> Small
+        <input type="radio" name="size" value="medium"> Medium
+        <input type="radio" name="size" value="large"> Large
+        <br><br>
+        <a href="#section1">Section 1</a>
+        <a href="#section2">Section 2</a>
+        <a href="http://example.com">External Link</a>
+    </div>
+
+    <p>
+        <button id="btn-all-li">All li</button>
+        <button id="btn-first">:first</button>
+        <button id="btn-last">:last</button>
+        <button id="btn-even">:even</button>
+        <button id="btn-odd">:odd</button>
+        <button id="btn-gt">:gt(2)</button>
+        <button id="btn-hot">.hot class</button>
+        <button id="btn-attr">[data-price>200]</button>
+        <button id="btn-attr2">[class~=special]</button>
+        <button id="btn-contains">:contains(Chai)</button>
+        <button id="btn-has">:has(span)</button>
+        <button id="btn-input">:input</button>
+        <button id="btn-checked">:checked</button>
+        <button id="btn-not">:not(.iced)</button>
+        <button id="btn-clear">Clear</button>
+    </p>
+
+    <div id="result" class="card">Selected: (none)</div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+
+        var $result = $("#result");
+
+        function select(selector, label) {
+            $(".selected").removeClass("selected");
+            $(selector).addClass("selected");
+            var count = $(selector).length;
+            $result.html("Selector: <code>" + selector + "</code> | " + label + " | Count: " + count);
+        }
+
+        // --- Basic selectors ---
+        $("#btn-all-li").click(function () { select("li", "All <li> elements"); });
+        $("#btn-first").click(function () { select("li:first", "First <li>"); });
+        $("#btn-last").click(function () { select("li:last", "Last <li>"); });
+        $("#btn-even").click(function () { select("li:even", "Even index (0-based)"); });
+        $("#btn-odd").click(function () { select("li:odd", "Odd index (0-based)"); });
+        $("#btn-gt").click(function () { select("li:gt(2)", "Index greater than 2"); });
+
+        // --- Class selectors ---
+        $("#btn-hot").click(function () { select(".hot", "Class .hot"); });
+
+        // --- Attribute selectors ---
+        $("#btn-attr").click(function () { select("[data-price>200]", "data-price > 200"); });
+        $("#btn-attr2").click(function () { select("[class~=special]", "class contains 'special'"); });
+
+        // --- Content filters ---
+        $("#btn-contains").click(function () { select("li:contains('Chai')", ":contains(Chai)"); });
+        $("#btn-has").click(function () { select("div:has(span)", ":has(span)"); });
+
+        // --- Form selectors ---
+        $("#btn-input").click(function () { select(":input", "All :input elements"); });
+        $("#btn-checked").click(function () { select(":checked", "All :checked elements"); });
+
+        // --- Negation ---
+        $("#btn-not").click(function () { select("li:not('.iced')", "li not .iced"); });
+
+        // --- Multiple selectors ---
+        $("#btn-clear").click(function () {
+            $(".selected").removeClass("selected");
+            $result.text("Cleared");
+        });
+
+        // --- Additional selector examples (logged) ---
+
+        // Child combinator
+        console.log("ul > li:", $("ul > li").length);
+
+        // Attribute starts-with
+        console.log("[class^=hot]:", $("[class^=hot]").length);
+
+        // Attribute ends-with
+        console.log("[class$=ial]:", $("[class$=ial]").length);
+
+        // Nth-child
+        console.log("li:nth-child(3):", $("li:nth-child(3)").text());
+
+        // Hidden / visible
+        console.log(":hidden elements:", $(":hidden").length);
+        console.log(":visible elements:", $(":visible").length);
+
+        // Header selector (h1-h6)
+        console.log(":header elements:", $(":header").length);
+
+        // Animation selector
+        console.log(":animated:", $(":animated").length);
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AJAX Shorthand - Chai API Client</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 700px; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 6px; }
+        pre { background: #f5f5f5; padding: 1rem; max-height: 300px; overflow-y: auto; }
+        button { margin: 0.2rem; }
+        .loading { opacity: 0.5; }
+    </style>
+</head>
+<body>
+
+    <h2>Chai API Client - AJAX Shorthand Methods</h2>
+
+    <p>
+        <button id="btn-get">$.get() posts</button>
+        <button id="btn-post">$.post() new</button>
+        <button id="btn-json">$.getJSON()</button>
+        <button id="btn-script">$.getScript()</button>
+        <button id="btn-load">.load() partial</button>
+        <button id="btn-error">Error demo</button>
+        <button id="btn-clear">Clear</button>
+    </p>
+
+    <div id="result" class="card">
+        <pre id="output">Results appear here.</pre>
+    </div>
+
+    <div id="global-events" class="card">
+        <p>Global AJAX events: <span id="ajax-status">idle</span></p>
+        <div id="progress-bar" style="height:4px;background:#6b4226;width:0%;"></div>
+    </div>
+
+    <div id="load-target" class="card">
+        <p>Content loaded via .load() will appear here:</p>
+        <div id="loaded-content"><em>(nothing loaded yet)</em></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+
+        var $output = $("#output");
+        var $status = $("#ajax-status");
+        var $bar = $("#progress-bar");
+
+        // --- Global AJAX events ---
+        $(document)
+            .on("ajaxStart", function () {
+                $status.text("loading...").parent().addClass("loading");
+                $bar.animate({ width: "60%" }, 300);
+            })
+            .on("ajaxStop", function () {
+                $status.text("idle").parent().removeClass("loading");
+                $bar.animate({ width: "100%" }, 200).delay(500).animate({ width: "0%" }, 300);
+            });
+
+        // --- $.get() - shorthand GET request ---
+        $("#btn-get").click(function () {
+            $.get("https://jsonplaceholder.typicode.com/posts", { _limit: 5 })
+                .done(function (data) {
+                    var titles = data.map(function (p) {
+                        return "- " + p.title;
+                    }).join("\n");
+                    $output.text("GET /posts?_limit=5\n\n" + titles);
+                })
+                .fail(function () { $output.text("GET request failed"); });
+        });
+
+        // --- $.post() - shorthand POST ---
+        $("#btn-post").click(function () {
+            $.post("https://jsonplaceholder.typicode.com/posts", {
+                title: "Chai Order",
+                body: "One masala chai please",
+                userId: 1
+            })
+                .done(function (data) {
+                    $output.text("POST response (simulated):\n" + JSON.stringify(data, null, 2));
+                })
+                .fail(function () { $output.text("POST failed"); });
+        });
+
+        // --- $.getJSON() - shorthand with JSON parsing ---
+        $("#btn-json").click(function () {
+            $.getJSON("https://jsonplaceholder.typicode.com/users")
+                .done(function (data) {
+                    var names = data.map(function (u) {
+                        return u.name + " (" + u.email + ")";
+                    }).join("\n");
+                    $output.text("USERS via getJSON:\n\n" + names);
+                })
+                .fail(function () { $output.text("getJSON failed"); });
+        });
+
+        // --- $.getScript() - dynamically load a script ---
+        $("#btn-script").click(function () {
+            $.getScript("https://code.jquery.com/color/jquery.color-2.1.2.min.js")
+                .done(function () {
+                    $output.text("$.getScript loaded jQuery Color plugin!\nTry: $('body').animate({backgroundColor: '#f5f0e8'})");
+                })
+                .fail(function () { $output.text("Script load failed"); });
+        });
+
+        // --- .load() - load HTML fragment into element ---
+        $("#btn-load").click(function () {
+            // .load() loads HTML directly into the element
+            // Using a real endpoint that returns HTML
+            $("#loaded-content").load("https://jsonplaceholder.typicode.com/posts/1", function (response, status) {
+                if (status === "error") {
+                    // jsonplaceholder returns JSON, not HTML, so load will fail - that's fine
+                    // We'll simulate with a different approach
+                    $("#loaded-content").html("<em>.load() attempted - use GET for JSON APIs. Try a static HTML file for .load().</em>");
+                }
+                $output.text(".load() status: " + status);
+            });
+        });
+
+        // --- Error demo ---
+        $("#btn-error").click(function () {
+            $.get("https://jsonplaceholder.typicode.com/nonexistent")
+                .done(function () { $output.text("Should not appear"); })
+                .fail(function (jqXHR) {
+                    $output.text("Error! Status: " + jqXHR.status + " " + jqXHR.statusText);
+                });
+        });
+
+        // --- Clear ---
+        $("#btn-clear").click(function () {
+            $output.text("Cleared.");
+            $("#loaded-content").html("<em>(nothing loaded yet)</em>");
+        });
+
+        // --- $.ajaxSetup() - set defaults for all AJAX calls ---
+        $.ajaxSetup({
+            timeout: 15000,
+            cache: false
+        });
+
+        console.log("AJAX defaults set: timeout=15000, cache=false");
+
+    </script>
+</body>
+</html>

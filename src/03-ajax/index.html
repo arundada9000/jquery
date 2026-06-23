@@ -1,27 +1,129 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <title>AJAX - Chai API</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 6px; }
+        pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; }
+        button { margin: 0.25rem; }
+        .loading { opacity: 0.5; pointer-events: none; }
+    </style>
+</head>
 <body>
-<button id="load">Load Users</button>
-<div id="result"></div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script>
-$("#load").click(function(){
+    <h2>Chai Shop API</h2>
 
-$.ajax({
-    url:"https://jsonplaceholder.typicode.com/users",
-    method:"GET",
+    <button id="btn-users">GET Users</button>
+    <button id="btn-post">GET Single Post</button>
+    <button id="btn-create">POST New (simulated)</button>
+    <button id="btn-jsonp">GET JSON (error demo)</button>
 
-    success:function(data){
-        $("#result").text(data[0].name);
-    },
+    <div id="result" class="card">
+        <pre id="output">Click a button to fetch data.</pre>
+    </div>
 
-    error:function(){
-        console.log("error");
-    }
-});
+    <p id="status" class="card">Status: idle</p>
 
-});
-</script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+
+        var $output = $("#output");
+        var $status = $("#status");
+
+        // --- Standard $.ajax() with full options ---
+        $("#btn-users").click(function () {
+
+            $.ajax({
+                url: "https://jsonplaceholder.typicode.com/users",
+                method: "GET",
+                dataType: "json",
+                timeout: 10000,
+
+                beforeSend: function () {
+                    $status.text("Status: loading...").addClass("loading");
+                },
+
+                success: function (data) {
+                    var names = data.map(function (u) { return u.name; });
+                    $output.text("Users:\n" + names.join("\n"));
+                    $status.text("Status: loaded " + data.length + " users");
+                },
+
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $output.text("Error: " + textStatus + " - " + errorThrown);
+                    $status.text("Status: failed");
+                },
+
+                complete: function () {
+                    $status.removeClass("loading");
+                }
+            });
+
+        });
+
+        // --- $.ajax with shorthand syntax (url only) ---
+        $("#btn-post").click(function () {
+
+            $.ajax("https://jsonplaceholder.typicode.com/posts/1")
+                .done(function (data) {
+                    $output.text("Post #1 title:\n" + data.title);
+                    $status.text("Status: post loaded");
+                })
+                .fail(function () {
+                    $output.text("Failed to load post");
+                });
+
+        });
+
+        // --- POST request ---
+        $("#btn-create").click(function () {
+
+            $.ajax({
+                url: "https://jsonplaceholder.typicode.com/posts",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    title: "Chai Order",
+                    body: "One masala chai please",
+                    userId: 1
+                }),
+                success: function (data) {
+                    $output.text("Created post #" + data.id + "\n" + JSON.stringify(data, null, 2));
+                    $status.text("Status: created (simulated)");
+                },
+                error: function () {
+                    $output.text("POST failed");
+                }
+            });
+
+        });
+
+        // --- Error handling demo (bad URL) ---
+        $("#btn-jsonp").click(function () {
+
+            $.ajax({
+                url: "https://jsonplaceholder.typicode.com/nonexistent",
+                method: "GET",
+                statusCode: {
+                    404: function () {
+                        $output.text("Caught 404 error via statusCode handler");
+                    }
+                },
+                error: function () {
+                    $output.text("Error handler also fired for 404");
+                }
+            });
+
+        });
+
+        // --- Global AJAX events ---
+        $(document).on("ajaxStart", function () {
+            $status.text("Status: global ajax start");
+        }).on("ajaxStop", function () {
+            $status.text("Status: global ajax stop");
+        });
+
+    </script>
 </body>
 </html>

@@ -1,24 +1,121 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <title>Attributes & Data - Chai Items</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 6px; }
+        .chai-card { padding: 1rem; margin: 0.5rem 0; background: #f9f9f9; cursor: pointer; }
+        .chai-card:hover { background: #e8f5e9; }
+        button { margin: 0.25rem; }
+        pre { background: #f5f5f5; padding: 0.5rem; }
+    </style>
+</head>
 <body>
 
-<img id="image" src="one.jpg">
+    <h2>Chai Menu</h2>
 
-<button data-id="100">Delete</button>
+    <div id="chai-container" class="card">
+        <div class="chai-card" data-id="101" data-price="250" data-category="hot" data-organic="true">
+            Masala Chai - Rs 250
+        </div>
+        <div class="chai-card" data-id="102" data-price="300" data-category="hot" data-organic="false">
+            Turmeric Latte - Rs 300
+        </div>
+        <div class="chai-card" data-id="103" data-price="200" data-category="iced" data-organic="true">
+            Iced Chai - Rs 200
+        </div>
+    </div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script>
+    <p>
+        <button id="btn-get-attrs">Get Attributes</button>
+        <button id="btn-set-src">Set Image src</button>
+        <button id="btn-check-prop">Check Checkbox prop</button>
+        <button id="btn-toggle-data">Toggle Organic</button>
+    </p>
 
-$("#image").attr("src","two.jpg");
+    <div id="demo" class="card">Click a chai card or button.</div>
 
-$("button").click(function(){
+    <img id="chai-img" src="" alt="Chai image will load" style="max-width:200px;">
 
-console.log(
-    $(this).data("id")
-);
+    <label><input type="checkbox" id="chk-organic"> Show organic only</label>
 
-});
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
 
-</script>
+        var demo = $("#demo");
+
+        // --- .data() - reads HTML5 data-* attributes (cached) ---
+        // Clicking a card reads its data attributes
+        $(".chai-card").click(function () {
+            var id = $(this).data("id");
+            var price = $(this).data("price");
+            var category = $(this).data("category");
+            var organic = $(this).data("organic");
+
+            demo.html(
+                "ID: " + id + " | Price: Rs " + price +
+                " | Category: " + category + " | Organic: " + organic
+            );
+        });
+
+        // --- .data() vs .attr("data-*") ---
+        // .data() parses values (numbers become numbers, "true"/"false" become booleans)
+        // .attr() always returns strings
+        $("#btn-get-attrs").click(function () {
+            var card = $(".chai-card:first");
+            var viaData = card.data("price");
+            var viaAttr = card.attr("data-price");
+            var organicData = card.data("organic");
+            var organicAttr = card.attr("data-organic");
+
+            demo.html(
+                "data('price') = " + viaData + " (type: " + typeof viaData + ")<br>" +
+                "attr('data-price') = " + viaAttr + " (type: " + typeof viaAttr + ")<br>" +
+                "data('organic') = " + organicData + " (type: " + typeof organicData + ")<br>" +
+                "attr('data-organic') = " + organicAttr + " (type: " + typeof organicAttr + ")"
+            );
+        });
+
+        // --- .attr() - get/set HTML attributes ---
+        $("#btn-set-src").click(function () {
+            var img = $("#chai-img");
+            // Set using attr
+            img.attr("src", "https://via.placeholder.com/200x100?text=Chai");
+            img.attr("alt", "Fresh cup of chai");
+            demo.text("Image src set to placeholder");
+        });
+
+        // --- .prop() - get/set DOM properties (checked, disabled, etc.) ---
+        $("#btn-check-prop").click(function () {
+            var isChecked = $("#chk-organic").prop("checked");
+            demo.text("Checkbox checked: " + isChecked);
+        });
+
+        // Toggle checkbox via prop
+        $("#chk-organic").on("change", function () {
+            var checked = $(this).prop("checked");
+            if (checked) {
+                $(".chai-card[data-organic='false']").hide();
+                $(".chai-card[data-organic='true']").show();
+            } else {
+                $(".chai-card").show();
+            }
+        });
+
+        // --- .removeAttr() and .removeData() ---
+        $("#btn-toggle-data").click(function () {
+            var first = $(".chai-card:first");
+            var current = first.data("organic");
+            // .data() can be used to set (but only in memory, not DOM attribute)
+            first.data("organic", !current);
+            demo.text("Toggled organic to " + first.data("organic") + " (in-memory only)");
+        });
+
+        // --- attr vs prop for boolean attributes ---
+        console.log("disabled attr:", $("#btn-toggle-data").attr("disabled")); // undefined
+        console.log("disabled prop:", $("#btn-toggle-data").prop("disabled")); // false
+
+    </script>
 </body>
 </html>

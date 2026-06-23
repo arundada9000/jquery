@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>jQuery Object - Chai Selection</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 700px; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 6px; }
+        .chai-card { padding: 0.5rem; margin: 0.2rem 0; background: #f9f9f9; cursor: pointer; }
+        .chai-card:hover { background: #e8f5e9; }
+        .selected { outline: 3px solid #6b4226; }
+        button { margin: 0.2rem; }
+        pre { background: #f5f5f5; padding: 0.5rem; }
+    </style>
+</head>
+<body>
+
+    <h2>Chai Selection - jQuery Object Internals</h2>
+
+    <div id="menu" class="card">
+        <div class="chai-card">Masala Chai</div>
+        <div class="chai-card">Ginger Tea</div>
+        <div class="chai-card">Turmeric Latte</div>
+        <div class="chai-card">Iced Chai</div>
+        <div class="chai-card">Black Tea</div>
+    </div>
+
+    <p>
+        <button id="btn-length">.length</button>
+        <button id="btn-get">.get(index)</button>
+        <button id="btn-index">.index()</button>
+        <button id="btn-eq">.eq(index)</button>
+        <button id="btn-first-last">.first() .last()</button>
+        <button id="btn-slice">.slice()</button>
+        <button id="btn-is">.is() check</button>
+        <button id="btn-has">.has() filter</button>
+        <button id="btn-add">.add()</button>
+        <button id="btn-not-filter">.not() vs .filter()</button>
+        <button id="btn-toarray">.toArray()</button>
+        <button id="btn-map-get">.map() + .get()</button>
+        <button id="btn-clear">Clear</button>
+    </p>
+
+    <div id="result" class="card"><pre id="output">Click a button.</pre></div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+
+        var $output = $("#output");
+        var $cards = $(".chai-card");
+
+        // --- jQuery object is array-like ---
+        console.log("$cards:", $cards);
+        console.log("$cards[0]:", $cards[0]); // raw DOM element
+        console.log("$cards instanceof jQuery:", $cards instanceof jQuery);
+
+        // --- .length - number of elements in collection ---
+        $("#btn-length").click(function () {
+            $output.text(
+                "$('.chai-card').length = " + $cards.length + "\n" +
+                "This is a jQuery object, not a true Array.\n" +
+                "It has numeric indices and a length property."
+            );
+        });
+
+        // --- .get(index) - get raw DOM element by index ---
+        $("#btn-get").click(function () {
+            var second = $cards.get(1); // raw DOM element, not jQuery
+            var tagName = second.tagName;
+            var text = second.textContent;
+
+            $output.text(
+                "$cards.get(1) returns a raw DOM element:\n" +
+                "  tagName: " + tagName + "\n" +
+                "  textContent: " + text + "\n" +
+                "  $(second).text(): " + $(second).text()
+            );
+        });
+
+        // --- .index() - get index of element in collection ---
+        $("#btn-index").click(function () {
+            $(".chai-card").click(function () {
+                var idx = $(".chai-card").index(this);
+                $output.text(
+                    "You clicked '" + $(this).text() + "'\n" +
+                    "index() = " + idx + " (0-based position in collection)"
+                );
+            });
+            $output.text("Click any chai card to see its index.");
+        });
+
+        // --- .eq(index) - reduce to one element (returns jQuery object) ---
+        $("#btn-eq").click(function () {
+            $(".selected").removeClass("selected");
+            $cards.eq(2).addClass("selected");
+            var text = $cards.eq(2).text();
+
+            $output.text(
+                "$cards.eq(2) = " + text + "\n" +
+                ".eq() returns a jQuery object, unlike .get() which returns DOM.\n" +
+                "Note the difference: eq(2) vs get(2)"
+            );
+        });
+
+        // --- .first() and .last() ---
+        $("#btn-first-last").click(function () {
+            $(".selected").removeClass("selected");
+            $cards.first().addClass("selected");
+            $cards.last().css("border", "2px solid #6b4226");
+
+            $output.text(
+                "$cards.first() = " + $cards.first().text() + "\n" +
+                "$cards.last() = " + $cards.last().text() + "\n" +
+                "First is highlighted, last has border"
+            );
+        });
+
+        // --- .slice(start, end) - subset by index range ---
+        $("#btn-slice").click(function () {
+            $(".selected").removeClass("selected");
+            $cards.slice(1, 4).addClass("selected");
+
+            $output.text(
+                "$cards.slice(1, 4) selected (indices 1,2,3)\n" +
+                "Similar to Array.slice() but returns jQuery object"
+            );
+        });
+
+        // --- .is(selector) - boolean check ---
+        $("#btn-is").click(function () {
+            var result = [
+                "$cards.first().is(':first-child'): " + $cards.first().is(":first-child"),
+                "$cards.last().is(':last-child'): " + $cards.last().is(":last-child"),
+                "$cards.eq(0).is('.chai-card'): " + $cards.eq(0).is(".chai-card"),
+                "$cards.is('div'): " + $cards.is("div")
+            ];
+            $output.text(result.join("\n"));
+        });
+
+        // --- .has(selector) - keep elements that contain matching descendant ---
+        $("#btn-has").click(function () {
+            // Add a span inside one card for demo
+            $cards.first().append("<span class='special'>(featured)</span>");
+            var hasSpecial = $cards.has(".special");
+
+            $output.text(
+                "Added .special span to first card.\n" +
+                "$cards.has('.special').length = " + hasSpecial.length + "\n" +
+                "Keeps only elements that contain a matching descendant"
+            );
+        });
+
+        // --- .add(selector) - add elements to collection ---
+        $("#btn-add").click(function () {
+            var all = $cards.add("h2");
+
+            $output.text(
+                "$cards.add('h2') creates new jQuery object:\n" +
+                "  Original length: " + $cards.length + "\n" +
+                "  After .add('h2'): " + all.length + "\n" +
+                "  Elements: " + all.map(function () { return $(this).text() || this.tagName; }).get().join(", ")
+            );
+        });
+
+        // --- .not() vs .filter() ---
+        $("#btn-not-filter").click(function () {
+            $(".selected").removeClass("selected");
+            $cards.filter(":even").addClass("selected");
+
+            var filteredCount = $cards.filter(":even").length;
+            var notCount = $cards.not(":even").length;
+
+            $output.text(
+                "filter vs not:\n" +
+                "  $cards.filter(':even'): " + filteredCount + " selected (even indices)\n" +
+                "  $cards.not(':even'): " + notCount + " (odd indices)\n" +
+                "  filter keeps matches, not removes matches"
+            );
+        });
+
+        // --- .toArray() - convert jQuery to true Array ---
+        $("#btn-toarray").click(function () {
+            var arr = $cards.toArray();
+            $output.text(
+                "$cards.toArray() returns a true Array:\n" +
+                "  Array.isArray: " + Array.isArray(arr) + "\n" +
+                "  Length: " + arr.length + "\n" +
+                "  Elements are raw DOM nodes: " + arr.map(function (el) { return el.textContent; }).join(", ")
+            );
+        });
+
+        // --- .map() + .get() pattern ---
+        $("#btn-map-get").click(function () {
+            var prices = $cards.map(function () {
+                return $(this).text() + " (Rs " + (100 + Math.floor(Math.random() * 200)) + ")";
+            }).get(); // .get() unwraps from jQuery to regular array
+
+            $output.text(
+                "$cards.map(...).get() pattern:\n" +
+                prices.join("\n") + "\n\n" +
+                "Without .get(), the result is still a jQuery object.\n" +
+                ".get() unwraps it to a regular array."
+            );
+        });
+
+        // --- Clear ---
+        $("#btn-clear").click(function () {
+            $(".selected").removeClass("selected");
+            $cards.css("border", "");
+            $cards.find(".special").remove();
+            $output.text("Cleared.");
+        });
+
+    </script>
+</body>
+</html>

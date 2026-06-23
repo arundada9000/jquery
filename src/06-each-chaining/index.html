@@ -1,28 +1,114 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <title>Each & Chaining - Chai Batch</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 6px; }
+        .item { padding: 0.5rem; margin: 0.25rem 0; background: #f9f9f9; }
+        .highlight { background: #fff3cd; }
+        .bold { font-weight: bold; }
+        button { margin: 0.25rem; }
+    </style>
+</head>
 <body>
 
-<h1>A</h1>
-<h1>B</h1>
-<h1>C</h1>
+    <h2>Chai Batch Processing</h2>
 
-<div id="box">Hello</div>
+    <div id="batch" class="card">
+        <div class="item" data-price="250">Masala Chai</div>
+        <div class="item" data-price="180">Ginger Tea</div>
+        <div class="item" data-price="300">Turmeric Latte</div>
+        <div class="item" data-price="200">Iced Chai</div>
+        <div class="item" data-price="150">Black Tea</div>
+    </div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script>
+    <p>
+        <button id="btn-each">Log Each Item</button>
+        <button id="btn-chain">Animate Chain</button>
+        <button id="btn-end">end() demo</button>
+        <button id="btn-expensive">Find Expensive</button>
+    </p>
 
-$("h1").each(function(index){
+    <div id="demo" class="card">Result shown here.</div>
 
-console.log(index, $(this).text());
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
 
-});
+        var demo = $("#demo");
+        var batch = $("#batch");
 
+        // --- .each() - iterate over jQuery collection ---
+        $("#btn-each").click(function () {
 
-$("#box")
-.hide()
-.addClass("active")
-.fadeIn();
+            var lines = [];
+            $(".item").each(function (index) {
+                var name = $(this).text();
+                var price = $(this).data("price");
+                lines.push(index + ": " + name + " (Rs " + price + ")");
+            });
 
-</script>
+            demo.html(lines.join("<br>"));
+        });
+
+        // --- $.each() - iterate over arrays/objects ---
+        var chaiTypes = ["Masala", "Ginger", "Turmeric", "Iced"];
+        $.each(chaiTypes, function (i, val) {
+            console.log("Chai #" + i + ": " + val);
+        });
+
+        // --- Method chaining ---
+        // Each method returns the jQuery object, so calls can be chained.
+        $("#btn-chain").click(function () {
+            $(".item")
+                .css("background", "#e8f5e9")
+                .addClass("bold")
+                .fadeOut(400)
+                .delay(200)
+                .fadeIn(400)
+                .css("background", "")
+                .removeClass("bold");
+            demo.text("Chained 6 methods on .item elements");
+        });
+
+        // --- .end() - revert to previous jQuery selection ---
+        $("#btn-end").click(function () {
+
+            var items = $(".item");
+
+            items
+                .filter(function () {
+                    return $(this).data("price") > 200;
+                })
+                .addClass("highlight");
+
+            // .end() reverts back to the full .item set
+            var expensiveCount = items.filter(".highlight").length;
+            var totalCount = items.end().length;
+
+            demo.html(
+                "Found " + expensiveCount + " expensive (Rs > 200) out of " + totalCount + " total<br>" +
+                "Used .filter() then .end() to revert selection"
+            );
+        });
+
+        // --- .addBack() - add previous selection back ---
+        $("#btn-expensive").click(function () {
+            var result = $(".item")
+                .not(":first")
+                .css("border", "2px solid #ccc")
+                .addBack()
+                .css("border", "2px solid green");
+
+            demo.text("First item has green border, rest have both (used addBack)");
+        });
+
+        // --- Chaining with map/get pattern ---
+        var prices = $(".item").map(function () {
+            return $(this).data("price");
+        }).get();
+        console.log("Prices array from map+get:", prices);
+
+    </script>
 </body>
 </html>

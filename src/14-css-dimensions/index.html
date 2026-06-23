@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSS & Dimensions - Chai Layout</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 700px; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 6px; }
+        #chai-box {
+            width: 200px; height: 100px; padding: 20px; margin: 20px;
+            border: 5px solid #6b4226; background: #f5f0e8;
+            position: relative; overflow: auto;
+        }
+        .highlight { background: #fff3cd; }
+        .bordered { border: 3px solid #8B4513; }
+        .big-text { font-size: 1.5rem; font-weight: bold; }
+        #scroll-area { width: 250px; height: 80px; overflow: scroll; border: 1px solid #ccc; padding: 0.5rem; }
+        pre { background: #f5f5f5; padding: 0.5rem; }
+        button { margin: 0.2rem; }
+    </style>
+</head>
+<body>
+
+    <h2>Chai Layout Lab - CSS & Dimensions</h2>
+
+    <div id="chai-box" class="card">
+        <p>Masala Chai</p>
+        <p>Ginger Tea</p>
+        <p>Turmeric Latte</p>
+    </div>
+
+    <div id="scroll-area">
+        <p style="height:200px;width:400px;">
+            Scrollable content inside chai shop.
+            There are many tea varieties here.
+            Keep scrolling to see more.
+        </p>
+    </div>
+
+    <p>
+        <button id="btn-css-get">Get CSS color</button>
+        <button id="btn-css-set">Set CSS background</button>
+        <button id="btn-class">toggleClass highlight</button>
+        <button id="btn-has-class">hasClass?</button>
+        <button id="btn-width">Get width/height</button>
+        <button id="btn-inner">Get inner/outer</button>
+        <button id="btn-offset">Get offset/position</button>
+        <button id="btn-scroll">Get scroll position</button>
+        <button id="btn-reset">Reset</button>
+    </p>
+
+    <div id="result" class="card">Result shown here.</div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+
+        var $box = $("#chai-box");
+        var $result = $("#result");
+
+        // --- .css() getter ---
+        $("#btn-css-get").click(function () {
+            var bg = $box.css("background-color");
+            var border = $box.css("border-color");
+            $result.html("Background: " + bg + "<br>Border: " + border);
+        });
+
+        // --- .css() setter (single and multiple) ---
+        $("#btn-css-set").click(function () {
+            $box.css("background-color", "#e8f5e9");
+            $box.css({
+                "border-color": "#2e7d32",
+                "border-width": "4px"
+            });
+            $result.text("Set background to green and border to dark green");
+        });
+
+        // --- .addClass(), .removeClass(), .toggleClass() ---
+        $("#btn-class").click(function () {
+            $box.toggleClass("highlight");
+            var has = $box.hasClass("highlight");
+            $result.text("highlight class toggled: " + has);
+        });
+
+        // --- .hasClass() ---
+        $("#btn-has-class").click(function () {
+            var has = $box.hasClass("highlight");
+            $result.text("hasClass('highlight'): " + has + " | hasClass('bordered'): " + $box.hasClass("bordered"));
+        });
+
+        // --- .width(), .height() ---
+        $("#btn-width").click(function () {
+            var w = $box.width();
+            var h = $box.height();
+            var cssW = $box.css("width");
+            var cssH = $box.css("height");
+            $result.html(
+                ".width() = " + w + "px (content only)<br>" +
+                ".height() = " + h + "px<br>" +
+                "css('width') = " + cssW + " (includes CSS value)"
+            );
+        });
+
+        // --- .innerWidth(), .innerHeight(), .outerWidth(), .outerHeight() ---
+        $("#btn-inner").click(function () {
+            var iw = $box.innerWidth();
+            var ow = $box.outerWidth();
+            var owt = $box.outerWidth(true); // includes margin
+            $result.html(
+                "innerWidth()  = " + iw + " (content + padding)<br>" +
+                "outerWidth()  = " + ow + " (content + padding + border)<br>" +
+                "outerWidth(true) = " + owt + " (content + padding + border + margin)"
+            );
+        });
+
+        // --- .offset() and .position() ---
+        $("#btn-offset").click(function () {
+            var offset = $box.offset();
+            var position = $box.position();
+            $result.html(
+                ".offset()  -> left: " + offset.left + ", top: " + offset.top + " (relative to document)<br>" +
+                ".position() -> left: " + position.left + ", top: " + position.top + " (relative to offset parent)"
+            );
+        });
+
+        // --- .scrollTop() and .scrollLeft() ---
+        $("#btn-scroll").click(function () {
+            var scrollArea = $("#scroll-area");
+            var st = scrollArea.scrollTop();
+            var sl = scrollArea.scrollLeft();
+            $result.html("scrollTop: " + st + " | scrollLeft: " + sl);
+
+            // Scroll to a position
+            if (st < 50) {
+                scrollArea.scrollTop(100);
+                $result.append("<br>Scrolled to scrollTop = 100");
+            } else {
+                scrollArea.scrollTop(0);
+                $result.append("<br>Reset scroll to 0");
+            }
+        });
+
+        // --- Reset ---
+        $("#btn-reset").click(function () {
+            $box.css({
+                "background-color": "#f5f0e8",
+                "border-color": "#6b4226",
+                "border-width": "5px"
+            }).removeClass("highlight");
+            $("#scroll-area").scrollTop(0).scrollLeft(0);
+            $result.text("Reset to initial state");
+        });
+
+    </script>
+</body>
+</html>

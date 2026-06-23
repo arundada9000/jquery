@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Advanced Events - Chai Counter</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 700px; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 6px; }
+        .chai-btn { padding: 0.8rem 1.5rem; margin: 0.3rem; background: #6b4226; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .chai-btn:hover { background: #8b5e3c; }
+        .chai-btn:disabled { background: #ccc; cursor: not-allowed; }
+        button { margin: 0.2rem; }
+        pre { background: #f5f5f5; padding: 0.5rem; }
+        #log { max-height: 200px; overflow-y: auto; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <h2>Chai Counter - Advanced Events</h2>
+
+    <p>
+        <button class="chai-btn" id="btn-chai">Order Chai</button>
+        <button class="chai-btn" id="btn-tea">Order Tea</button>
+        <button class="chai-btn" id="btn-latte">Order Latte</button>
+    </p>
+
+    <p>
+        <button id="btn-off-chai">off() chai clicks</button>
+        <button id="btn-one-shot">one() shot only</button>
+        <button id="btn-trigger">trigger chai click</button>
+        <button id="btn-trigger-custom">trigger custom event</button>
+        <button id="btn-namespace">namespace toggle</button>
+        <button id="btn-clear-log">Clear Log</button>
+    </p>
+
+    <div id="stats" class="card">
+        <p>Chai: <span id="count-chai">0</span></p>
+        <p>Tea: <span id="count-tea">0</span></p>
+        <p>Latte: <span id="count-latte">0</span></p>
+    </div>
+
+    <div id="log" class="card">
+        <strong>Event Log:</strong><br>
+        <span id="log-content">(no events yet)</span>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+
+        var $log = $("#log-content");
+
+        function logEvent(msg) {
+            var time = new Date().toLocaleTimeString();
+            $log.prepend("[" + time + "] " + msg + "<br>");
+        }
+
+        // --- .on() - the preferred event binding method ---
+        $("#btn-chai").on("click", function () {
+            var count = parseInt($("#count-chai").text());
+            $("#count-chai").text(count + 1);
+            logEvent("Chai ordered (total: " + (count + 1) + ")");
+        });
+
+        // --- .on() with multiple events ---
+        $("#btn-tea").on({
+            click: function () {
+                var count = parseInt($("#count-tea").text());
+                $("#count-tea").text(count + 1);
+                logEvent("Tea ordered (total: " + (count + 1) + ")");
+            },
+            mouseenter: function () {
+                logEvent("Tea button hovered");
+            }
+        });
+
+        // --- .off() - remove event handler ---
+        var chaiActive = true;
+        $("#btn-off-chai").click(function () {
+            if (chaiActive) {
+                $("#btn-chai").off("click");
+                $(this).text("on() re-enable chai");
+                logEvent("Chai button clicks DISABLED");
+            } else {
+                $("#btn-chai").on("click", function () {
+                    var count = parseInt($("#count-chai").text());
+                    $("#count-chai").text(count + 1);
+                    logEvent("Chai ordered (total: " + (count + 1) + ")");
+                });
+                $(this).text("off() disable chai");
+                logEvent("Chai button clicks RE-ENABLED");
+            }
+            chaiActive = !chaiActive;
+        });
+
+        // --- .one() - fires only once ---
+        $("#btn-one-shot").one("click", function () {
+            logEvent("ONE-SHOT: This message appears only once!");
+            $(this).prop("disabled", true).text("Used up");
+        });
+
+        // --- .trigger() - programmatically fire event ---
+        $("#btn-trigger").click(function () {
+            $("#btn-chai").trigger("click");
+            logEvent("Programmatically triggered chai click");
+        });
+
+        // --- Custom events ---
+        $("#btn-latte").on("click", function () {
+            var count = parseInt($("#count-latte").text());
+            $("#count-latte").text(count + 1);
+            logEvent("Latte ordered (total: " + (count + 1) + ")");
+        });
+
+        // Custom event
+        $("#btn-latte").on("resetLatte", function () {
+            $("#count-latte").text(0);
+            logEvent("Latte count reset via custom event");
+        });
+
+        $("#btn-trigger-custom").click(function () {
+            $("#btn-latte").trigger("resetLatte");
+        });
+
+        // --- Namespaced events ---
+        var nsActive = true;
+        $("#btn-namespace").click(function () {
+            if (nsActive) {
+                // Add a namespaced event
+                $("#btn-chai").on("click.namespace", function () {
+                    logEvent("NAMESPACED: Extra chai handler!");
+                });
+                $(this).text("Remove namespace");
+                logEvent("Added namespaced click handler");
+            } else {
+                // Remove only the namespaced handler (click still works)
+                $("#btn-chai").off("click.namespace");
+                $(this).text("Add namespace");
+                logEvent("Removed namespaced handler only");
+            }
+            nsActive = !nsActive;
+        });
+
+        // --- Event object ---
+        $(document).on("click", function (e) {
+            // Log event details for button clicks only
+            if ($(e.target).is("button")) {
+                console.log("Event object:", {
+                    type: e.type,
+                    target: e.target,
+                    currentTarget: e.currentTarget,
+                    which: e.which,
+                    pageX: e.pageX,
+                    pageY: e.pageY,
+                    timeStamp: e.timeStamp
+                });
+            }
+        });
+
+        // --- .stopPropagation() demo (on the card) ---
+        $(".card").on("click", function () {
+            logEvent("Card clicked (propagation reached card)");
+        });
+
+        // --- .preventDefault() on links ---
+        $("a").click(function (e) {
+            e.preventDefault();
+            logEvent("Link click prevented: " + $(this).attr("href"));
+        });
+
+        // --- Clear log ---
+        $("#btn-clear-log").click(function () {
+            $log.empty();
+        });
+
+    </script>
+</body>
+</html>

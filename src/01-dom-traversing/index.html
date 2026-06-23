@@ -1,16 +1,105 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <title>DOM Traversing - Chai Menu</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 6px; }
+        .active { background: #e8f5e9; }
+        .highlight { background: #fff3cd; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 0.5rem; border-bottom: 1px solid #eee; }
+        button { margin: 0.25rem; }
+    </style>
+</head>
 <body>
-<div class="card">
-<h2>Hello Card</h2>
-<button>Hide Card</button>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script>
-$("button").click(function(){
-    $(this).closest(".card").hide();
-});
-</script>
+    <div id="shop" class="card">
+        <h2>Chai Menu</h2>
+        <ul class="menu-list">
+            <li class="item hot">Masala Chai</li>
+            <li class="item hot">Ginger Tea</li>
+            <li class="item iced">Iced Chai</li>
+            <li class="item hot">Turmeric Latte</li>
+            <li class="item iced">Cold Brew</li>
+        </ul>
+        <div class="footer">
+            <button id="btn-parent">closest card</button>
+            <button id="btn-children">children of ul</button>
+            <button id="btn-find">find .hot items</button>
+            <button id="btn-siblings">siblings of iced</button>
+            <button id="btn-prev-next">prev / next</button>
+            <button id="btn-eq">third item (eq)</button>
+            <button id="btn-filter">filter: first()</button>
+        </div>
+        <p id="demo" class="card">Result shown here.</p>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+
+        var demo = $("#demo");
+
+        // --- .closest() - nearest ancestor matching selector ---
+        $("#btn-parent").click(function () {
+            var card = $(this).closest(".card");
+            demo.text("Found closest .card with id: " + card.attr("id"));
+        });
+
+        // --- .children() - direct children only ---
+        $("#btn-children").click(function () {
+            var count = $(".menu-list").children().length;
+            var items = $(".menu-list").children().map(function () {
+                return $(this).text();
+            }).get().join(", ");
+            demo.text(count + " direct children: " + items);
+        });
+
+        // --- .find() - all descendants matching selector ---
+        $("#btn-find").click(function () {
+            var hotItems = $("#shop").find(".hot").length;
+            demo.text("Found " + hotItems + " .hot items inside #shop");
+        });
+
+        // --- .siblings() - all siblings of an element ---
+        $("#btn-siblings").click(function () {
+            var siblings = $(".item.iced").first().siblings().map(function () {
+                return $(this).text();
+            }).get().join(", ");
+            demo.text("Siblings of Iced Chai: " + siblings);
+        });
+
+        // --- .prev() and .next() - adjacent siblings ---
+        $("#btn-prev-next").click(function () {
+            var iced = $(".item.iced").first();
+            var prev = iced.prev().text() || "(none)";
+            var next = iced.next().text() || "(none)";
+            demo.text("Iced Chai -> prev: " + prev + " | next: " + next);
+        });
+
+        // --- .eq() - element at specific index ---
+        $("#btn-eq").click(function () {
+            var third = $(".menu-list li").eq(2).text();
+            demo.text("Third item (eq 2): " + third);
+        });
+
+        // --- .first() and .last() ---
+        $("#btn-filter").click(function () {
+            var first = $(".menu-list li").first().text();
+            var last = $(".menu-list li").last().text();
+            demo.text("First: " + first + " | Last: " + last);
+        });
+
+        // --- .parent() ---
+        $(".item").click(function () {
+            var parentTag = $(this).parent().prop("tagName").toLowerCase();
+            alert($(this).text() + " is inside a <" + parentTag + ">");
+        });
+
+        // --- .not() and .filter() ---
+        console.log("Hot items:", $(".menu-list li").filter(".hot").length);
+        console.log("Non-hot:", $(".menu-list li").not(".hot").length);
+
+    </script>
 </body>
 </html>

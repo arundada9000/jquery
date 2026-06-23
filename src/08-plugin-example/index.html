@@ -1,25 +1,121 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <title>jQuery Plugin - Chai Tools</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 6px; }
+        .chai-card { padding: 1rem; margin: 0.5rem 0; background: #f9f9f9; }
+        button { margin: 0.25rem; }
+    </style>
+</head>
 <body>
 
-<div id="box">Hello</div>
+    <h2>Chai Plugin Demo</h2>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <div class="chai-card" data-price="250" id="card1">Masala Chai</div>
+    <div class="chai-card" data-price="300" id="card2">Turmeric Latte</div>
+    <div class="chai-card" data-price="200" id="card3">Iced Chai</div>
 
-<script>
+    <p>
+        <button id="btn-green">Make Green Text</button>
+        <button id="btn-border">Add Chai Border</button>
+        <button id="btn-price">Show Prices</button>
+        <button id="btn-reset">Reset Cards</button>
+    </p>
 
-$.fn.greenText = function(){
+    <div id="demo" class="card">Click buttons to test plugins.</div>
 
-    this.css("color","green");
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
 
-    return this;
+        // --- Define plugins via $.fn ---
 
-};
+        // Plugin 1: Simple color changer (chainable)
+        $.fn.greenText = function () {
+            this.css("color", "green");
+            return this; // always return this for chaining
+        };
 
+        // Plugin 2: Adds a decorative border (with options)
+        $.fn.chaiBorder = function (options) {
+            var settings = $.extend({
+                color: "#6b4226",
+                width: "3px",
+                style: "solid"
+            }, options);
 
-$("#box").greenText();
+            this.css("border", settings.width + " " + settings.style + " " + settings.color);
+            this.css("border-radius", "8px");
+            this.css("padding", "0.5rem");
 
-</script>
+            return this;
+        };
 
+        // Plugin 3: Shows data-price in a tooltip / data attribute
+        $.fn.showPrice = function () {
+            this.each(function () {
+                var price = $(this).data("price");
+                if (price) {
+                    $(this).append(' <span style="color:#888;">(Rs ' + price + ')</span>');
+                }
+            });
+            return this;
+        };
+
+        // Plugin 4: Plugin with default settings and method access
+        $.fn.chaiHighlight = function (opts) {
+            var settings = $.extend({
+                bgColor: "#fff3cd",
+                duration: 500
+            }, opts);
+
+            return this.each(function () {
+                $(this)
+                    .css("background", settings.bgColor)
+                    .fadeOut(settings.duration)
+                    .fadeIn(settings.duration);
+            });
+        };
+
+        // --- Using the plugins ---
+
+        var demo = $("#demo");
+
+        $("#btn-green").click(function () {
+            $(".chai-card").greenText();
+            demo.text("Applied greenText plugin");
+        });
+
+        $("#btn-border").click(function () {
+            $(".chai-card").chaiBorder({
+                color: "#8B4513",
+                width: "2px"
+            });
+            demo.text("Applied chaiBorder plugin with brown color");
+        });
+
+        $("#btn-price").click(function () {
+            $(".chai-card").showPrice();
+            demo.text("Applied showPrice plugin");
+        });
+
+        $("#btn-reset").click(function () {
+            $(".chai-card")
+                .css({ color: "", border: "", borderRadius: "", padding: "", background: "" })
+                .find("span").remove();
+            demo.text("Cards reset");
+        });
+
+        // --- Plugin chaining ---
+        $(".chai-card:first")
+            .chaiHighlight({ bgColor: "#e8f5e9" })
+            .greenText();
+
+        console.log("$.fn keys:", Object.keys($.fn).filter(function (k) {
+            return ["greenText", "chaiBorder", "showPrice", "chaiHighlight"].includes(k);
+        }));
+
+    </script>
 </body>
 </html>

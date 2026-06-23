@@ -1,19 +1,92 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <title>Event Delegation - Chai Orders</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 6px; }
+        .order-item { padding: 0.5rem; margin: 0.25rem 0; background: #f9f9f9; cursor: pointer; }
+        .order-item:hover { background: #e8f5e9; }
+        .completed { text-decoration: line-through; opacity: 0.6; }
+        button { margin: 0.25rem; }
+    </style>
+</head>
 <body>
-<button id="add">Add Button</button>
-<div id="container"></div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script>
-$("#add").click(function(){
-    $("#container").append("<button class='dynamic'>Dynamic Button</button>");
-});
+    <h2>Chai Order Queue</h2>
 
-// works even for future buttons
-$(document).on("click",".dynamic",function(){
-    alert("Dynamic button clicked");
-});
-</script>
+    <button id="btn-add">Add Masala Chai</button>
+    <button id="btn-add-iced">Add Iced Chai</button>
+    <button id="btn-complete-all">Complete All</button>
+
+    <div id="order-list" class="card">
+        <div class="order-item">Ginger Tea</div>
+        <div class="order-item">Turmeric Latte</div>
+    </div>
+
+    <p id="log" class="card">Click an order to mark it completed.</p>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+
+        var log = $("#log");
+
+        // --- Event delegation: listen on parent for dynamic children ---
+        // Without delegation, clicking an order-item added later would not work.
+        $("#order-list").on("click", ".order-item", function () {
+            $(this).toggleClass("completed");
+            var status = $(this).hasClass("completed") ? "completed" : "pending";
+            log.text($(this).text() + " marked as " + status);
+        });
+
+        // --- Namespaced event ---
+        $("#order-list").on("dblclick.order", ".order-item", function () {
+            $(this).slideUp(function () {
+                $(this).remove();
+            });
+            log.text("Removed by double-click");
+        });
+
+        // --- .one() - fires only once ---
+        $("#btn-complete-all").one("click", function () {
+            $(".order-item").addClass("completed");
+            log.text("All completed (one-time action)");
+            $(this).prop("disabled", true).text("Done");
+        });
+
+        // --- Adding dynamic items (these will work with delegation) ---
+        $("#btn-add").click(function () {
+            $("#order-list").append('<div class="order-item">Masala Chai</div>');
+            log.text("Added Masala Chai");
+        });
+
+        $("#btn-add-iced").click(function () {
+            $("#order-list").append('<div class="order-item">Iced Chai</div>');
+            log.text("Added Iced Chai");
+        });
+
+        // --- .off() - remove event handler ---
+        $("#btn-add").on("click.offdemo", function () {
+            console.log("Add button clicked (namespaced)");
+        });
+        // Uncomment to remove that handler:
+        //$("#btn-add").off("click.offdemo");
+
+        // --- .trigger() - programmatically fire event ---
+        // Trigger a custom event
+        $("#order-list").on("customAlert", function () {
+            alert("Custom event triggered!");
+        });
+        // To fire it: $("#order-list").trigger("customAlert");
+
+        // --- Event object properties ---
+        $("#order-list").on("click", ".order-item", function (e) {
+            console.log("Event type:", e.type);
+            console.log("Target:", e.target);
+            console.log("Current target:", e.currentTarget);
+            console.log("Timestamp:", e.timeStamp);
+        });
+
+    </script>
 </body>
 </html>

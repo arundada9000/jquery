@@ -1,21 +1,89 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <title>Form Serialization - Chai Order Form</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 6px; }
+        label { display: inline-block; width: 100px; }
+        input, select, textarea { margin: 0.5rem 0; padding: 0.4rem; width: 200px; }
+        button { margin: 0.5rem 0; }
+        pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; }
+    </style>
+</head>
 <body>
 
-<form id="form">
-<input name="username" value="arun">
-<input name="email" value="test@test.com">
-<button>Submit</button>
-</form>
+    <h2>Chai Order Form</h2>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script>
-$("#form").submit(function(e){
-    e.preventDefault();
+    <form id="order-form" class="card">
+        <label>Name:</label>
+        <input name="customer" value="Arun"><br>
 
-    console.log($(this).serialize());
-});
-</script>
+        <label>Chai Type:</label>
+        <select name="chai">
+            <option value="masala">Masala Chai</option>
+            <option value="ginger">Ginger Tea</option>
+            <option value="turmeric">Turmeric Latte</option>
+            <option value="iced">Iced Chai</option>
+        </select><br>
 
+        <label>Sugar:</label>
+        <input type="radio" name="sugar" value="none"> None
+        <input type="radio" name="sugar" value="one" checked> One
+        <input type="radio" name="sugar" value="two"> Two<br>
+
+        <label>Extras:</label>
+        <input type="checkbox" name="extras" value="ginger" checked> Ginger
+        <input type="checkbox" name="extras" value="cardamom"> Cardamom
+        <input type="checkbox" name="extras" value="honey"> Honey<br>
+
+        <label>Notes:</label>
+        <textarea name="notes">No ice please</textarea><br>
+
+        <button type="submit">Submit Order</button>
+        <button type="button" id="btn-serialize-array">Serialize Array</button>
+    </form>
+
+    <div id="output" class="card">
+        <p>Serialized output will appear here.</p>
+        <pre id="result"></pre>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+
+        var $result = $("#result");
+
+        // --- .serialize() - produces URL-encoded string ---
+        $("#order-form").submit(function (e) {
+            e.preventDefault();
+
+            var serialized = $(this).serialize();
+            $("#output p").text("URL-encoded string:");
+            $result.text(serialized);
+        });
+
+        // --- .serializeArray() - produces array of objects ---
+        $("#btn-serialize-array").click(function () {
+            var arr = $("#order-form").serializeArray();
+            $("#output p").text("Array of objects:");
+            $result.text(JSON.stringify(arr, null, 2));
+        });
+
+        // --- $.param() - manually serialize objects ---
+        var manualData = {
+            customer: "Arun",
+            chai: "masala",
+            extras: ["ginger", "honey"]
+        };
+        console.log("$.param() example:", $.param(manualData));
+
+        // --- Form values can also be read individually ---
+        // $("[name=customer]").val()
+        // $("[name=chai]").val()
+        // $("[name=sugar]:checked").val()
+        // $("[name=extras]:checked").map(function(){return $(this).val()}).get()
+
+    </script>
 </body>
 </html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Advanced Effects - Chai Animations</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 700px; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 6px; }
+        #chai-cup {
+            width: 100px; height: 100px; background: #6b4226; border-radius: 50%;
+            color: white; display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; margin: 1rem 0; position: relative;
+        }
+        .steam { position: absolute; top: -20px; left: 40px; font-size: 1.5rem; opacity: 0; }
+        button { margin: 0.2rem; }
+        pre { background: #f5f5f5; padding: 0.5rem; }
+        .progress-bar {
+            width: 0%; height: 20px; background: #6b4226; border-radius: 10px;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Chai Animations - Effects Lab</h2>
+
+    <div id="chai-cup">
+        <span class="steam">~</span>
+        Chai
+    </div>
+
+    <div class="progress-bar" id="brew-bar"></div>
+    <p id="brew-label">Brew progress: 0%</p>
+
+    <p>
+        <button id="btn-animate">Animate custom</button>
+        <button id="btn-queue">Queue animation</button>
+        <button id="btn-delay">Animate with delay</button>
+        <button id="btn-stop">stop()</button>
+        <button id="btn-finish">finish()</button>
+        <button id="btn-fade">Fade toggle</button>
+        <button id="btn-slide">Slide toggle</button>
+        <button id="btn-promise">.promise() demo</button>
+        <button id="btn-reset">Reset</button>
+    </p>
+
+    <div id="log" class="card">Effect log appears here.</div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+
+        var $cup = $("#chai-cup");
+        var $log = $("#log");
+        var $bar = $("#brew-bar");
+        var $steam = $(".steam");
+
+        function log(msg) { $log.html(msg); }
+
+        // --- .animate() with custom properties ---
+        $("#btn-animate").click(function () {
+            $cup.animate({
+                width: "150px",
+                height: "150px",
+                borderRadius: "30%",
+                opacity: 0.7
+            }, 800, function () {
+                log("Animated to 150x150 with 30% border radius");
+            });
+        });
+
+        // --- Queue animation steps ---
+        // jQuery animation methods are queued automatically when called sequentially.
+        // But queue() can also be used for custom actions between animations.
+        $("#btn-queue").click(function () {
+            $cup
+                .animate({ width: "150px" }, 400)
+                .animate({ height: "150px" }, 400)
+                .animate({ borderRadius: "30%" }, 400)
+                .queue(function (next) {
+                    log("Mid-animation: custom queue step!");
+                    $(this).css("background", "#8B4513");
+                    next(); // continue the queue
+                })
+                .animate({ opacity: 0.7 }, 400)
+                .animate({ width: "100px", height: "100px", borderRadius: "50%", opacity: 1 }, 400);
+        });
+
+        // --- .delay() - pause between effects ---
+        $("#btn-delay").click(function () {
+            $cup
+                .fadeOut(300)
+                .delay(600)
+                .fadeIn(300)
+                .delay(300)
+                .animate({ width: "120px" }, 300)
+                .delay(300)
+                .animate({ width: "100px" }, 300);
+            log("Effects with delays between them");
+        });
+
+        // --- .stop() - halt current animation ---
+        $("#btn-stop").click(function () {
+            $cup.stop(); // stops current animation
+            log("Animation stopped. Current state frozen.");
+        });
+
+        // --- .stop(true, true) - clear queue and jump to end ---
+        // Add a second button function
+        $("#btn-stop").on("dblclick", function () {
+            $cup.stop(true, true);
+            log("stop(true,true) - queue cleared, jumped to end");
+        });
+
+        // --- .finish() - jump to end of ALL queued animations ---
+        $("#btn-finish").click(function () {
+            $cup.finish();
+            log("finish() - all queued animations completed instantly");
+        });
+
+        // --- Fade effects ---
+        $("#btn-fade").click(function () {
+            $cup.fadeOut(300).fadeIn(300);
+            $steam.fadeIn(200).fadeOut(200).fadeIn(200);
+            log("Fade out/in with steam effect");
+        });
+
+        // --- Slide effects ---
+        $("#btn-slide").click(function () {
+            $cup.slideUp(400).slideDown(400);
+            log("Slide up/down");
+        });
+
+        // --- .promise() - resolve when all animations complete ---
+        $("#btn-promise").click(function () {
+            log("Animations starting...");
+            $bar.css("width", "0%");
+            $("#brew-label").text("Brew progress: 0%");
+
+            // Animate bar in 10 steps
+            for (var i = 1; i <= 10; i++) {
+                $bar.animate({ width: (i * 10) + "%" }, 200);
+            }
+
+            // .promise() resolves when all queued animations on $bar finish
+            $bar.promise().done(function () {
+                $("#brew-label").text("Brew complete! Promise resolved.");
+                log("All bar animations finished. Promise fired.");
+            });
+        });
+
+        // --- Reset ---
+        $("#btn-reset").click(function () {
+            $cup.finish();
+            $cup.css({
+                width: "100px", height: "100px",
+                borderRadius: "50%", opacity: 1,
+                background: "#6b4226", margin: "1rem 0"
+            });
+            $steam.css("opacity", "0");
+            $bar.css("width", "0%");
+            $("#brew-label").text("Brew progress: 0%");
+            log("Reset to initial state");
+        });
+
+        // --- Custom easing: available "linear" and "swing" by default ---
+        $("#btn-animate").on("dblclick", function () {
+            $cup.animate({ left: "+=50px" }, {
+                duration: 600,
+                easing: "linear",
+                complete: function () {
+                    $cup.animate({ left: "-=50px" }, {
+                        duration: 600,
+                        easing: "swing"
+                    });
+                }
+            });
+            log("Linear vs swing easing demo");
+        });
+
+    </script>
+</body>
+</html>

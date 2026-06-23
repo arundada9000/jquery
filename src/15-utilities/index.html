@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>jQuery Utilities - Chai Tools</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 700px; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 6px; }
+        pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; }
+        button { margin: 0.2rem; }
+    </style>
+</head>
+<body>
+
+    <h2>Chai Utility Belt</h2>
+
+    <p>
+        <button id="btn-each-arr">$.each() array</button>
+        <button id="btn-each-obj">$.each() object</button>
+        <button id="btn-map">$.map()</button>
+        <button id="btn-grep">$.grep()</button>
+        <button id="btn-inarray">$.inArray()</button>
+        <button id="btn-extend">$.extend()</button>
+        <button id="btn-type">$.type() checks</button>
+        <button id="btn-trim">$.trim()</button>
+        <button id="btn-merge">$.merge()</button>
+        <button id="btn-other">More utilities</button>
+        <button id="btn-clear">Clear</button>
+    </p>
+
+    <div id="output" class="card">
+        <pre id="result">Click a button to see the result.</pre>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+
+        var $result = $("#result");
+
+        // --- $.each() - iterate over arrays ---
+        $("#btn-each-arr").click(function () {
+            var chaiTypes = ["Masala", "Ginger", "Turmeric", "Iced"];
+            var lines = [];
+            $.each(chaiTypes, function (index, value) {
+                lines.push(index + ": " + value + " Chai");
+            });
+            $result.text("$.each() array:\n" + lines.join("\n"));
+        });
+
+        // --- $.each() - iterate over objects ---
+        $("#btn-each-obj").click(function () {
+            var chaiRecipe = {
+                name: "Masala Chai",
+                base: "Black Tea",
+                spices: ["Cardamom", "Ginger", "Cinnamon"],
+                sweetness: "Medium"
+            };
+            var lines = [];
+            $.each(chaiRecipe, function (key, val) {
+                lines.push(key + ": " + (Array.isArray(val) ? val.join(", ") : val));
+            });
+            $result.text("$.each() object:\n" + lines.join("\n"));
+        });
+
+        // --- $.map() - transform array elements ---
+        $("#btn-map").click(function () {
+            var prices = [150, 200, 250, 300];
+            var withTax = $.map(prices, function (price, i) {
+                return price * 1.13; // 13% tax
+            });
+            var formatted = $.map(withTax, function (p) {
+                return "Rs " + Math.round(p);
+            });
+            $result.text(
+                "Original prices: " + prices.join(", ") + "\n" +
+                "With 13% tax: " + formatted.join(", ")
+            );
+        });
+
+        // --- $.grep() - filter array ---
+        $("#btn-grep").click(function () {
+            var chaiPrices = [
+                { name: "Masala Chai", price: 250 },
+                { name: "Ginger Tea", price: 180 },
+                { name: "Turmeric Latte", price: 300 },
+                { name: "Iced Chai", price: 200 },
+                { name: "Black Tea", price: 150 }
+            ];
+
+            var affordable = $.grep(chaiPrices, function (item) {
+                return item.price <= 200;
+            });
+
+            var names = $.map(affordable, function (item) {
+                return item.name + " (Rs " + item.price + ")";
+            });
+
+            $result.text("Affordable chai (Rs <= 200):\n" + names.join("\n"));
+        });
+
+        // --- $.inArray() - find value in array ---
+        $("#btn-inarray").click(function () {
+            var menu = ["Masala Chai", "Ginger Tea", "Turmeric Latte", "Iced Chai"];
+            var search = "Ginger Tea";
+            var idx = $.inArray(search, menu);
+            $result.text(
+                "Menu: " + menu.join(", ") + "\n" +
+                "Searching for: " + search + "\n" +
+                "Found at index: " + idx
+            );
+        });
+
+        // --- $.extend() - merge objects ---
+        $("#btn-extend").click(function () {
+            var defaults = {
+                size: "medium",
+                sugar: "one",
+                milk: "full",
+                extras: []
+            };
+
+            var customOrder = {
+                size: "large",
+                extras: ["ginger", "cardamom"]
+            };
+
+            var merged = $.extend({}, defaults, customOrder); // deep copy with override
+
+            $result.text(
+                "Defaults: " + JSON.stringify(defaults, null, 2) + "\n\n" +
+                "Custom: " + JSON.stringify(customOrder, null, 2) + "\n\n" +
+                "Merged: " + JSON.stringify(merged, null, 2)
+            );
+        });
+
+        // --- $.type() / $.isArray() / $.isFunction() / $.isNumeric() ---
+        $("#btn-type").click(function () {
+            var tests = [
+                { value: "hello", label: 'String "hello"' },
+                { value: 42, label: "Number 42" },
+                { value: true, label: "Boolean true" },
+                { value: [1, 2, 3], label: "Array [1,2,3]" },
+                { value: { a: 1 }, label: "Object {a:1}" },
+                { value: null, label: "null" },
+                { value: undefined, label: "undefined" },
+                { value: function () { }, label: "function(){}" },
+                { value: new Date(), label: "new Date()" }
+            ];
+
+            var lines = $.map(tests, function (t) {
+                return t.label + " -> $.type: " + $.type(t.value);
+            });
+
+            lines.push("");
+            lines.push("$.isArray([1,2,3]): " + $.isArray([1, 2, 3]));
+            lines.push("$.isFunction(function): " + $.isFunction(function () { }));
+            lines.push("$.isNumeric('42'): " + $.isNumeric("42"));
+            lines.push("$.isNumeric('chai'): " + $.isNumeric("chai"));
+
+            $result.text(lines.join("\n"));
+        });
+
+        // --- $.trim() ---
+        $("#btn-trim").click(function () {
+            var messy = "   Masala Chai   ";
+            var clean = $.trim(messy);
+            $result.text(
+                "Original: '" + messy + "' (length: " + messy.length + ")\n" +
+                "Trimmed: '" + clean + "' (length: " + clean.length + ")"
+            );
+        });
+
+        // --- $.merge() ---
+        $("#btn-merge").click(function () {
+            var morning = ["Masala Chai", "Ginger Tea"];
+            var evening = ["Turmeric Latte", "Iced Chai"];
+            var merged = $.merge($.merge([], morning), evening);
+            $result.text(
+                "Morning: " + morning.join(", ") + "\n" +
+                "Evening: " + evening.join(", ") + "\n" +
+                "Merged: " + merged.join(", ")
+            );
+        });
+
+        // --- $.makeArray(), $.proxy(), $.noConflict() (conceptual) ---
+        $("#btn-other").click(function () {
+
+            // $.makeArray() - convert array-like to true array
+            var divs = document.querySelectorAll("button");
+            var divArray = $.makeArray(divs);
+            var lines = [
+                "$.makeArray() converted NodeList to Array:",
+                "  Is Array: " + $.isArray(divArray),
+                "  Length: " + divArray.length,
+                ""
+            ];
+
+            // $.proxy() - bind function context
+            var chaiShop = {
+                name: "Chai Point",
+                items: ["Masala", "Ginger", "Turmeric"],
+                show: function () {
+                    return this.name + " serves: " + this.items.join(", ");
+                }
+            };
+
+            var fn = chaiShop.show;
+            lines.push("Without proxy (loses context): fn() = " + (fn() || "undefined or error"));
+            var bound = $.proxy(chaiShop, "show");
+            lines.push("With $.proxy: bound() = " + bound());
+
+            // $.now() - shorthand for Date.now()
+            lines.push("");
+            lines.push("$.now() timestamp: " + $.now());
+            lines.push("Same as Date.now(): " + Date.now());
+
+            $result.text(lines.join("\n"));
+        });
+
+        // --- Clear ---
+        $("#btn-clear").click(function () {
+            $result.text("Cleared.");
+        });
+
+        // --- Utility demos on page load ---
+        console.log("$.support (deprecated):", $.support);
+        console.log("$.contains check:", $.contains(document.body, document.getElementById("output")));
+        console.log("$.globalEval:", typeof $.globalEval);
+
+    </script>
+</body>
+</html>

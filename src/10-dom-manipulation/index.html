@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DOM Manipulation - Chai Builder</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 700px; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 6px; }
+        .highlight { background: #fff3cd; }
+        .chai-item { padding: 0.4rem; margin: 0.2rem 0; background: #f0f0f0; }
+        .to-clone { border: 2px dashed #6b4226; padding: 0.5rem; margin: 0.5rem 0; }
+        button { margin: 0.2rem; }
+    </style>
+</head>
+<body>
+
+    <h2>Chai Builder - DOM Manipulation</h2>
+
+    <div id="toolbar" class="card">
+        <button id="btn-append">append()</button>
+        <button id="btn-prepend">prepend()</button>
+        <button id="btn-before">before()</button>
+        <button id="btn-after">after()</button>
+        <button id="btn-remove">remove()</button>
+        <button id="btn-empty">empty()</button>
+        <button id="btn-clone">clone()</button>
+        <button id="btn-wrap">wrap()</button>
+        <button id="btn-replace">replaceWith()</button>
+        <button id="btn-detach">detach()</button>
+        <button id="btn-reset">Reset</button>
+    </div>
+
+    <div id="order" class="card">
+        <h3>Current Order</h3>
+        <div id="items">
+            <div class="chai-item">Masala Chai</div>
+            <div class="chai-item">Ginger Tea</div>
+        </div>
+    </div>
+
+    <div id="clipboard" class="card">
+        <h3>Clipboard (for clone/detach)</h3>
+        <div id="clip-content">Ready...</div>
+    </div>
+
+    <div id="result" class="card">Result shown here.</div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+
+        var $items = $("#items");
+        var $result = $("#result");
+        var $clip = $("#clip-content");
+
+        // --- .append() - insert content at end inside ---
+        $("#btn-append").click(function () {
+            $items.append('<div class="chai-item">Iced Chai (appended)</div>');
+            $result.text("Appended Iced Chai");
+        });
+
+        // --- .prepend() - insert content at beginning inside ---
+        $("#btn-prepend").click(function () {
+            $items.prepend('<div class="chai-item">Turmeric Latte (prepended)</div>');
+            $result.text("Prepended Turmeric Latte");
+        });
+
+        // --- .before() - insert before (outside, as sibling) ---
+        $("#btn-before").click(function () {
+            $("#order h3").before('<p style="color:#888;">Orders updated</p>');
+            $result.text("Inserted paragraph before h3");
+        });
+
+        // --- .after() - insert after (outside, as sibling) ---
+        $("#btn-after").click(function () {
+            $("#order h3").after('<hr>');
+            $result.text("Inserted hr after h3");
+        });
+
+        // --- .remove() - remove element entirely (including events) ---
+        $("#btn-remove").click(function () {
+            $items.find(".chai-item:last").remove();
+            $result.text("Removed last chai item");
+        });
+
+        // --- .empty() - remove all child content ---
+        $("#btn-empty").click(function () {
+            $items.empty();
+            $result.text("Emptied items container");
+        });
+
+        // --- .clone() - deep copy an element ---
+        // .clone(true) also clones event handlers
+        $("#btn-clone").click(function () {
+            var original = $items.find(".chai-item:first");
+            var clone = original.clone().css("background", "#e8f5e9");
+            $clip.empty().append(clone);
+            $result.text("Cloned first item to clipboard");
+        });
+
+        // --- .wrap() - wrap each element in structure ---
+        var wrapped = false;
+        $("#btn-wrap").click(function () {
+            if (!wrapped) {
+                $(".chai-item").wrap('<div class="highlight" style="margin:0.25rem;padding:0.25rem;"></div>');
+                $result.text("Wrapped each item in a div");
+                wrapped = true;
+            } else {
+                $result.text("Already wrapped. Reset first.");
+            }
+        });
+
+        // --- .replaceWith() - replace element with new content ---
+        $("#btn-replace").click(function () {
+            $items.find(".chai-item:first").replaceWith('<div class="chai-item">Matcha Latte (replaced)</div>');
+            $result.text("Replaced first item with Matcha Latte");
+        });
+
+        // --- .detach() - remove but preserve events/data ---
+        var detached = null;
+        $("#btn-detach").click(function () {
+            if (detached === null) {
+                detached = $items.find(".chai-item:last").detach();
+                $clip.text("Detached: " + detached.text());
+                $result.text("Detached last item (events preserved)");
+            } else {
+                $result.text("Already detached. Reset first.");
+            }
+        });
+
+        // --- .unwrap() - remove parent wrapper ---
+        $("<button id='btn-unwrap'>unwrap()</button>").insertAfter("#btn-wrap");
+        $("#btn-unwrap").click(function () {
+            $(".chai-item").unwrap();
+            wrapped = false;
+            $result.text("Unwrapped items");
+        });
+
+        // --- Reset ---
+        $("#btn-reset").click(function () {
+            $items.empty();
+            $items.append('<div class="chai-item">Masala Chai</div>');
+            $items.append('<div class="chai-item">Ginger Tea</div>');
+            $(".chai-item").unwrap();
+            wrapped = false;
+            detached = null;
+            $clip.text("Ready...");
+            $("#order h3").siblings("p, hr").remove();
+            $result.text("Reset to initial state");
+        });
+
+    </script>
+</body>
+</html>

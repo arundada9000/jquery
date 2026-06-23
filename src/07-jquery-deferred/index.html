@@ -1,22 +1,139 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <title>Deferred & Promises - Chai Brew Timer</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 6px; }
+        button { margin: 0.25rem; }
+        pre { background: #f5f5f5; padding: 0.5rem; }
+    </style>
+</head>
 <body>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <h2>Chai Brew Timer</h2>
 
-<script>
+    <button id="btn-brew">Brew Chai (3s)</button>
+    <button id="btn-brew-all">Brew All Teas</button>
+    <button id="btn-custom">Custom Deferred</button>
 
-$.ajax("https://jsonplaceholder.typicode.com/posts/1")
+    <div id="output" class="card">Output appears here.</div>
 
-.done(function(data){
-    console.log(data);
-})
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
 
-.fail(function(){
-    console.log("failed");
-});
+        var out = $("#output");
 
-</script>
+        // --- Promise pattern with $.ajax (returns a promise) ---
+        $("#btn-brew").click(function () {
 
+            out.text("Brewing...");
+
+            $.ajax("https://jsonplaceholder.typicode.com/posts/1")
+                .done(function (data) {
+                    out.text("Brew complete! Post title: " + data.title);
+                })
+                .fail(function () {
+                    out.text("Brew failed - network error");
+                })
+                .always(function () {
+                    console.log("Brew attempt finished (always runs)");
+                });
+
+        });
+
+        // --- $.when() - wait for multiple promises ---
+        $("#btn-brew-all").click(function () {
+
+            out.text("Brewing all teas...");
+
+            var tea1 = $.ajax("https://jsonplaceholder.typicode.com/posts/1");
+            var tea2 = $.ajax("https://jsonplaceholder.typicode.com/posts/2");
+            var tea3 = $.ajax("https://jsonplaceholder.typicode.com/posts/3");
+
+            $.when(tea1, tea2, tea3)
+                .done(function (r1, r2, r3) {
+                    out.html(
+                        "All 3 brews ready!<br>" +
+                        "Tea 1: " + r1[0].title + "<br>" +
+                        "Tea 2: " + r2[0].title + "<br>" +
+                        "Tea 3: " + r3[0].title
+                    );
+                })
+                .fail(function () {
+                    out.text("One or more brews failed");
+                });
+
+        });
+
+        // --- Creating a custom $.Deferred ---
+        function brewChai(name, timeMs) {
+            var dfd = $.Deferred();
+
+            out.text("Starting brew: " + name);
+
+            setTimeout(function () {
+                // 30% chance of failure for demo
+                if (Math.random() > 0.3) {
+                    dfd.resolve(name + " is ready!");
+                } else {
+                    dfd.reject(name + " spilled!");
+                }
+            }, timeMs);
+
+            return dfd.promise();
+        }
+
+        $("#btn-custom").click(function () {
+
+            brewChai("Masala Chai", 1500)
+                .done(function (msg) {
+                    out.text(msg);
+                })
+                .fail(function (msg) {
+                    out.text(msg);
+                });
+
+            // --- .then() - chained transformations ---
+            brewChai("Ginger Tea", 2000)
+                .then(function (msg) {
+                    return msg + " (with extra ginger!)";
+                })
+                .done(function (finalMsg) {
+                    console.log("Then result:", finalMsg);
+                });
+
+            // --- .progress() and .notify() ---
+            var brewWithProgress = function () {
+                var dfd = $.Deferred();
+                var progress = 0;
+
+                var interval = setInterval(function () {
+                    progress += 20;
+                    dfd.notify("Progress: " + progress + "%");
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        dfd.resolve("Brew complete!");
+                    }
+                }, 300);
+
+                return dfd.promise();
+            };
+
+            brewWithProgress()
+                .progress(function (msg) {
+                    console.log(msg);
+                })
+                .done(function (msg) {
+                    console.log(msg);
+                });
+
+        });
+
+        // --- Promise state inspection ---
+        var p = $.ajax("https://jsonplaceholder.typicode.com/posts/1");
+        console.log("Promise state:", p.state()); // "pending", "resolved", or "rejected"
+
+    </script>
 </body>
 </html>
