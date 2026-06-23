@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<body>
+<div class="card">
+<h2>Hello Card</h2>
+<button>Hide Card</button>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$("button").click(function(){
+    $(this).closest(".card").hide();
+});
+</script>
+</body>
+</html>
