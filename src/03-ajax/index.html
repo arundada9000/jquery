@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<body>
+<button id="load">Load Users</button>
+<div id="result"></div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$("#load").click(function(){
+
+$.ajax({
+    url:"https://jsonplaceholder.typicode.com/users",
+    method:"GET",
+
+    success:function(data){
+        $("#result").text(data[0].name);
+    },
+
+    error:function(){
+        console.log("error");
+    }
+});
+
+});
+</script>
+</body>
+</html>
