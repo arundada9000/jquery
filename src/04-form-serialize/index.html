@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<form id="form">
+<input name="username" value="arun">
+<input name="email" value="test@test.com">
+<button>Submit</button>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$("#form").submit(function(e){
+    e.preventDefault();
+
+    console.log($(this).serialize());
+});
+</script>
+
+</body>
+</html>
