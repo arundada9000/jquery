@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Hello</h1>
+    <h1>Hi</h1>
+    <h1>Yo</h1>
+    <button id="btn">Toggle paragraph</button>
+    <div id="wiki">
+        The Battle of Trapani took place on 23 June 1266 off Trapani, Sicily, between the fleets of the Republic of
+        Genoa and the Republic of Venice, as part of the War of Saint Sabas (1256–1270). The two fleets met near Trapani
+        in Sicily on 22 June. After learning of the Venetian fleet's smaller size, the Genoese war council resolved to
+        attack, but during the night Genoese commander Lanfranco Borbonino reversed the decision and instead ordered his
+        ships to take up a defensive position, bound together with chains, near the shore.
+    </div>
+    <script src="https://code.jquery.com/jquery-4.0.0.min.js"
+        integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            console.log($);
+            $('h1').click(function (e) {
+                console.log(e.target.textContent + ' You clicked');
+                // $(this).hide();
+            })
+            // $('h1').dblclick(function (e) {
+            //     console.log(e.target.textContent + ' You double clicked');
+
+            // })
+            // $('h1').hover(function (e) {
+            //     console.log(e.target.textContent + ' You double clicked');
+
+            // })
+            // $('h1').mouseenter(function (e) {
+            //     console.log(e.target.textContent + ' You double clicked');
+
+            // })
+
+            // multiple events in any element
+            $('h1').on(
+                {
+                    click: function () {
+                        console.log("clicked");
+
+                    }, mouseleave: function () {
+                        console.log("left");
+                    }
+                }
+            )
+
+            $('#btn').click(() => {
+                // $('#wiki').toggle(1000);
+                // $('#wiki').fadeIn(1000);
+                $('#wiki').fadeOut(1000);
+            })
+
+            $('#wiki').slideUp(1000, () => { console.log("slide up") });
+            $('#wiki').slideDown(1000);
+            // $('#wiki').slideToggle(1000);
+
+
+            // $('#wiki').animate({ opacity: 0.3, height: '150px', width: '350px' }, "slow");
+            // $('#wiki').animate({ opacity: 0.3, height: '150px', width: '350px' }, 1000);
+            $('#wiki').animate({ opacity: 0.3 }, 4000);
+            $('#wiki').animate({ opacity: 0.9 }, 1000);
+            $('#wiki').animate({ width: '35px' }, 12000);
+            // $('#wiki').stop();
+
+            // console.log($('#wiki').text())
+            // console.log($('#wiki').text("Arun"))
+
+            // $("body").html("Arun")
+
+            // $('#wiki').hide(2000, function () {
+            //     console.log("hidden")
+            // });
+            // $('#wiki').show(2000, function () {
+            //     console.log("Shown")
+            // });
+            // $('h1:first').click();
+
+            // events in jquery
+            // mouse events: click, dblclick, mouseenter,mouseleave, 
+            // keyboardevent = keypress keydown mediakeystatusmap
+            // for events = submit change  
+
+            // $('#ta').val('setting it to arun');
+            // $('#ta').html('setting it to arun');
+            // $('#ta').html('setting it to arun3');
+            // $('#inp').html('setting it to arun3');
+            // $('#inp').val('setting it to arun3');
+            // $('#inp').empty()
+            // $('#wiki').empty()
+            // $('#wiki').text('you are good')
+            // $('#wiki').remove()
+
+            //     $('#wiki').addClass('myclass')
+            // $('#wiki').addClass('myclass2')
+            // $('#wiki').removeClass('myclass2')
+            // $('#wiki').css('background-color', 'red')
+            // $('#wiki').css('background-color')
+
+            // AJAX Using jQuery
+            // $.get('https://code.jquery.com/jquery-3.3.1.js', function (data, status) { alert(data); })
+
+            // $.get('https://code.jquery.com/jquery-3.3.1.js', function (data, status) { alert(status); })
+
+            // $.post('https://code.jquery.com/jquery-3.3.1.js',
+            //     { name: 'arun', channel: 'code with arun' },
+            //     function (data, status) { alert(status) });
+        });
+    </script>
+</body>
+
+</html>
