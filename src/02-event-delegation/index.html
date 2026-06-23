@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<body>
+<button id="add">Add Button</button>
+<div id="container"></div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$("#add").click(function(){
+    $("#container").append("<button class='dynamic'>Dynamic Button</button>");
+});
+
+// works even for future buttons
+$(document).on("click",".dynamic",function(){
+    alert("Dynamic button clicked");
+});
+</script>
+</body>
+</html>
